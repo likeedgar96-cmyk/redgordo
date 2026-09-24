@@ -38,6 +38,7 @@
         <button class="mode-card" data-mode="meaning"><span class="mode-icon">Aa</span><b>Significado</b><small>Elige la traducción correcta.</small></button>
         <button class="mode-card" data-mode="listening"><span class="mode-icon">◖))</span><b>Escucha</b><small>Reconoce palabras y frases.</small></button>
         <button class="mode-card" data-mode="complete"><span class="mode-icon">__</span><b>Completa</b><small>Encuentra la palabra que falta.</small></button>
+        <button class="mode-card" id="flashcardsBtn"><span class="mode-icon">▣</span><b>Tarjetas</b><small>Voltea, escucha y repasa.</small></button>
         <button class="mode-card error-card" data-mode="errors"><span class="mode-icon">↻</span><b>Mis errores</b><small id="errorCount">0 tarjetas pendientes.</small></button>
       </div>
 
@@ -82,6 +83,26 @@
           <button id="retryBtn" class="primary">Otra ronda</button>
         </div>
       </article>
+    </section>
+
+    <section id="flashcards" class="screen">
+      <div class="section-header flashcards-title">
+        <button class="back-btn" data-go="home">← Inicio</button>
+        <div><p class="eyebrow">Estudia a tu ritmo</p><h1>Tarjetas</h1></div>
+      </div>
+      <div class="deck-toolbar">
+        <label class="search-box">Buscar<input id="deckSearch" type="search" placeholder="Palabra o significado..." /></label>
+        <label>Mostrar primero
+          <select id="deckDirection">
+            <option value="english">Inglés</option>
+            <option value="spanish">Español</option>
+          </select>
+        </label>
+        <button id="shuffleDeckBtn" class="secondary">Mezclar ↻</button>
+      </div>
+      <p class="deck-help">Toca una tarjeta para voltearla. Usa el altavoz para escuchar el inglés.</p>
+      <div id="flashcardDeck" class="flashcard-deck"></div>
+      <p id="emptyDeck" class="empty-deck hidden">No encontré tarjetas con esa búsqueda.</p>
     </section>
 
     <section id="manage" class="screen">
