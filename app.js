@@ -15,9 +15,10 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 let cards=JSON.parse(localStorage.getItem('rg_cards')||'null')||DEFAULT_CARDS;
 let stats=JSON.parse(localStorage.getItem('rg_stats')||'null')||{best:0,answered:0,correct:0,errors:[]};
 let session={mode:'mix',items:[],index:0,score:0,streak:0,correct:0,answered:false};
+let deckOrder=[];
 
 function save(){localStorage.setItem('rg_cards',JSON.stringify(cards));localStorage.setItem('rg_stats',JSON.stringify(stats));}
-function show(id){$$('.screen').forEach(x=>x.classList.remove('active'));$('#'+id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});if(id==='home')renderHome();if(id==='manage')renderLibrary();}
+function show(id){$$('.screen').forEach(x=>x.classList.remove('active'));$('#'+id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});if(id==='home')renderHome();if(id==='manage')renderLibrary();if(id==='flashcards')renderFlashcards();}
 function renderHome(){
  $('#totalCards').textContent=cards.length;$('#bestStreak').textContent=stats.best;
  $('#mastery').textContent=stats.answered?Math.round(stats.correct/stats.answered*100)+'%':'0%';
@@ -54,6 +55,24 @@ function answer(value,card,mode,button){
 }
 function next(){if(!session.answered)return;if(++session.index>=session.items.length)return finish();renderQuestion()}
 function finish(){show('results');$('#finalScore').textContent=session.score;const pct=Math.round(session.correct/session.items.length*100);$('#resultTitle').textContent=pct>=80?'Excelente ronda':pct>=60?'Vas por buen camino':'Esta ronda ya nos dijo qué repasar';$('#resultSummary').textContent=`Acertaste ${session.correct} de ${session.items.length} (${pct}%). ${stats.errors.length?'Tus errores quedaron guardados para repasarlos.':'No quedaron errores pendientes.'}`;}
+function renderFlashcards(){
+ const query=($('#deckSearch')?.value||'').trim().toLowerCase(),direction=$('#deckDirection')?.value||'english';
+ if(!deckOrder.length||deckOrder.some(id=>!cards.find(c=>c.id===id)))deckOrder=cards.map(c=>c.id);
+ const ordered=deckOrder.map(id=>cards.find(c=>c.id===id)).filter(Boolean);
+ const visible=ordered.filter(c=>!query||[c.term,c.meaning,c.example,c.translation].some(v=>(v||'').toLowerCase().includes(query)));
+ const deck=$('#flashcardDeck');deck.innerHTML='';$('#emptyDeck').classList.toggle('hidden',visible.length>0);
+ visible.forEach(c=>{
+  const first=direction==='english'?c.term:c.meaning,second=direction==='english'?c.meaning:c.term;
+  const article=document.createElement('article');article.className='study-card';article.tabIndex=0;article.setAttribute('aria-label','Voltear tarjeta: '+c.term);
+  article.innerHTML=`<div class="study-card-inner">
+   <div class="study-card-face front"><div class="card-actions"><button class="card-action speak-card" title="Escuchar inglés" aria-label="Escuchar">🔊</button><span>↻</span></div><h2 class="study-card-word">${escapeHtml(first)}</h2>${direction==='english'&&c.pronunciation?`<p class="study-pronunciation">${escapeHtml(c.pronunciation)}</p>`:''}<span class="flip-note">Toca para voltear</span></div>
+   <div class="study-card-face back"><div class="card-actions"><button class="card-action speak-card" title="Escuchar inglés" aria-label="Escuchar">🔊</button><span>↻</span></div><h3 class="study-card-meaning">${escapeHtml(second)}</h3>${direction==='spanish'&&c.pronunciation?`<p class="study-pronunciation">${escapeHtml(c.pronunciation)}</p>`:''}${c.remember?`<p class="study-remember">${escapeHtml(c.remember)}</p>`:''}${c.example?`<p class="study-example">${escapeHtml(c.example)}</p>`:''}${c.translation?`<p class="study-translation">${escapeHtml(c.translation)}</p>`:''}<span class="flip-note">Toca para regresar</span></div>
+  </div>`;
+  article.onclick=()=>article.classList.toggle('flipped');article.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();article.classList.toggle('flipped')}};
+  article.querySelectorAll('.speak-card').forEach(b=>b.onclick=e=>{e.stopPropagation();speech(c.term)});
+  deck.appendChild(article);
+ });
+}
 function renderLibrary(){
  $('#libraryCount').textContent=`${cards.length} tarjetas`;$('#cardLibrary').innerHTML='';cards.forEach(c=>{const el=document.createElement('article');el.className='library-card';el.innerHTML=`<button class="delete-card" title="Eliminar">×</button><h3>${escapeHtml(c.term)}</h3><p><b>${escapeHtml(c.meaning)}</b></p><p>${escapeHtml(c.example||'')}</p>`;el.querySelector('button').onclick=()=>{if(confirm(`¿Eliminar “${c.term}”?`)){cards=cards.filter(x=>x.id!==c.id);stats.errors=stats.errors.filter(x=>x!==c.id);save();renderLibrary()}};$('#cardLibrary').appendChild(el)});
 }
@@ -61,10 +80,11 @@ function escapeHtml(s=''){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;
 function slug(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'-'+Date.now()}
 function addCard(data){cards.push({id:slug(data.term),cloze:data.cloze||'',distractors:data.distractors||[],translation:'',remember:`Recuerda: ${data.term} significa ${data.meaning}.`,...data})}
 
-$$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));$$('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode));$('#startMixBtn').onclick=()=>start('mix');$('#manageBtn').onclick=()=>show('manage');$('#nextBtn').onclick=next;$('#retryBtn').onclick=()=>start(session.mode);
+$('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));$('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode));$('#flashcardsBtn').onclick=()=>show('flashcards');$('#startMixBtn').onclick=()=>start('mix');$('#manageBtn').onclick=()=>show('manage');$('#nextBtn').onclick=next;$('#retryBtn').onclick=()=>start(session.mode);
 $('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem('rg_dark',document.body.classList.contains('dark'));$('#themeBtn').textContent=document.body.classList.contains('dark')?'☀':'☾'};
 if(localStorage.getItem('rg_dark')==='true'){$('body').classList.add('dark');$('#themeBtn').textContent='☀'}
 $('#cardForm').onsubmit=e=>{e.preventDefault();addCard({term:$('#termInput').value.trim(),meaning:$('#meaningInput').value.trim(),pronunciation:$('#pronunciationInput').value.trim(),example:$('#exampleInput').value.trim(),translation:$('#translationInput').value.trim(),remember:$('#rememberInput').value.trim()});save();e.target.reset();renderLibrary()};
 $('#importBtn').onclick=()=>{const lines=$('#importInput').value.split('\n').map(x=>x.trim()).filter(Boolean);let n=0;lines.forEach(line=>{const [term,meaning,pronunciation='',example='']=line.split('|').map(x=>x.trim());if(term&&meaning){addCard({term,meaning,pronunciation,example});n++}});save();$('#importMessage').textContent=n?`${n} ${n===1?'tarjeta importada':'tarjetas importadas'} correctamente.`:'No encontré líneas con el formato esperado.';if(n)$('#importInput').value='';renderLibrary()};
+$('#deckSearch').oninput=renderFlashcards;$('#deckDirection').onchange=renderFlashcards;$('#shuffleDeckBtn').onclick=()=>{deckOrder=shuffle(cards.map(c=>c.id));renderFlashcards()};
 $('#resetProgressBtn').onclick=()=>{if(confirm('¿Reiniciar puntos, rachas y errores? Tus tarjetas se conservarán.')){stats={best:0,answered:0,correct:0,errors:[]};save();alert('Progreso reiniciado.')}};
 renderHome();
