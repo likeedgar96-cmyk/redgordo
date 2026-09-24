@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#9f2636" />
+  <title>RedGordo · English practice</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="RedGordo, inicio">
+      <img src="icon.svg" alt="RedGordo, gato gris con moño rojo" />
+      <span><strong>RedGordo</strong><small>English practice</small></span>
+    </a>
+    <button id="themeBtn" class="icon-btn" aria-label="Cambiar tema" title="Cambiar tema">☾</button>
+  </header>
+
+  <main>
+    <section id="home" class="screen active">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">Práctica breve, progreso real</p>
+          <h1>Entrena tu inglés<br><span>sin hacerlo pesado.</span></h1>
+          <p>Significado, escucha y frases. RedGordo recuerda tus errores para que tú dejes de repetirlos.</p>
+        </div>
+        <img class="hero-cat" src="icon.svg" alt="Ilustración de RedGordo" />
+      </div>
+
+      <div class="stats" aria-label="Estadísticas">
+        <div><strong id="totalCards">0</strong><span>tarjetas</span></div>
+        <div><strong id="bestStreak">0</strong><span>mejor racha</span></div>
+        <div><strong id="mastery">0%</strong><span>dominio</span></div>
+      </div>
+
+      <h2>¿Qué quieres practicar?</h2>
+      <div class="mode-grid">
+        <button class="mode-card" data-mode="meaning"><span class="mode-icon">Aa</span><b>Significado</b><small>Elige la traducción correcta.</small></button>
+        <button class="mode-card" data-mode="listening"><span class="mode-icon">◖))</span><b>Escucha</b><small>Reconoce palabras y frases.</small></button>
+        <button class="mode-card" data-mode="complete"><span class="mode-icon">__</span><b>Completa</b><small>Encuentra la palabra que falta.</small></button>
+        <button class="mode-card error-card" data-mode="errors"><span class="mode-icon">↻</span><b>Mis errores</b><small id="errorCount">0 tarjetas pendientes.</small></button>
+      </div>
+
+      <div class="home-actions">
+        <button id="manageBtn" class="secondary">Administrar tarjetas</button>
+        <button id="startMixBtn" class="primary">Práctica aleatoria</button>
+      </div>
+    </section>
+
+    <section id="quiz" class="screen">
+      <div class="quiz-header">
+        <button class="back-btn" data-go="home">← Salir</button>
+        <div class="progress-wrap"><div id="progressBar"></div></div>
+        <span id="progressText">1 / 10</span>
+      </div>
+      <div class="score-row"><span>Puntos <b id="score">0</b></span><span>Racha <b id="streak">0</b> 🔥</span></div>
+
+      <article class="quiz-card">
+        <p id="questionType" class="eyebrow">Elige el significado</p>
+        <button id="listenBtn" class="listen-btn hidden" aria-label="Escuchar de nuevo">▶ Escuchar</button>
+        <h2 id="questionText"></h2>
+        <p id="questionHint" class="question-hint"></p>
+        <div id="options" class="options"></div>
+        <div id="feedback" class="feedback hidden">
+          <div id="feedbackTitle"></div>
+          <p id="feedbackText"></p>
+          <blockquote id="exampleText"></blockquote>
+          <button id="nextBtn" class="primary">Siguiente →</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="results" class="screen">
+      <article class="results-card">
+        <img src="icon.svg" alt="RedGordo" />
+        <p class="eyebrow">Sesión terminada</p>
+        <h1 id="resultTitle">Buen trabajo</h1>
+        <div class="result-score"><strong id="finalScore">0</strong><span>puntos</span></div>
+        <p id="resultSummary"></p>
+        <div class="result-actions">
+          <button class="secondary" data-go="home">Volver al inicio</button>
+          <button id="retryBtn" class="primary">Otra ronda</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="manage" class="screen">
+      <div class="section-header">
+        <button class="back-btn" data-go="home">← Inicio</button>
+        <div><p class="eyebrow">Biblioteca personal</p><h1>Mis tarjetas</h1></div>
+      </div>
+
+      <div class="manage-grid">
+        <article class="panel">
+          <h2>Agregar una tarjeta</h2>
+          <form id="cardForm">
+            <label>Palabra o frase<input id="termInput" required placeholder="taught" /></label>
+            <label>Significado<input id="meaningInput" required placeholder="enseñó / enseñado" /></label>
+            <label>Pronunciación aproximada<input id="pronunciationInput" placeholder="tot" /></label>
+            <label>Ejemplo en inglés<input id="exampleInput" placeholder="My teacher taught me English." /></label>
+            <label>Traducción del ejemplo<input id="translationInput" placeholder="Mi profesor me enseñó inglés." /></label>
+            <label>Recuerda<textarea id="rememberInput" placeholder="Es el pasado de teach."></textarea></label>
+            <button class="primary" type="submit">Agregar tarjeta</button>
+          </form>
+        </article>
+
+        <article class="panel">
+          <h2>Importar desde ChatGPT</h2>
+          <p class="muted">Pega una o varias líneas con este formato:</p>
+          <code>palabra | significado | pronunciación | ejemplo</code>
+          <textarea id="importInput" class="import-area" placeholder="throughout | durante todo / a lo largo de | thru-áut | It rained throughout the night."></textarea>
+          <button id="importBtn" class="primary">Importar tarjetas</button>
+          <p id="importMessage" class="form-message"></p>
+          <hr />
+          <button id="resetProgressBtn" class="danger">Reiniciar solamente mi progreso</button>
+        </article>
+      </div>
+
+      <div class="library-head"><h2>Tarjetas disponibles</h2><span id="libraryCount"></span></div>
+      <div id="cardLibrary" class="library"></div>
+    </section>
+  </main>
+
+  <footer>Hecho para practicar un poco todos los días · <b>RedGordo</b></footer>
+  <script src="app.js"></script>
+</body>
+</html>
