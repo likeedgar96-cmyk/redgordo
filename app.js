@@ -20,6 +20,8 @@ const DEFAULT_CARDS=[
   ,{id:'teacher',term:'teacher',meaning:'profesor/a, maestro/a',pronunciation:'tí-cher',example:'He is a history teacher.',translation:'Él es profesor de historia.',remember:'A person whose job is teaching, especially in a school.',cloze:'He is a history ___.',distractors:['student','professor','classmate']}
   ,{id:'school',term:'school',meaning:'colegio / escuela',pronunciation:'skul',example:'My brother and I went to the same school.',translation:'Mi hermano y yo fuimos a la misma escuela.',remember:'A place where people, often children, go to be educated.',cloze:'We went to the same ___.',distractors:['class','college','course']}
   ,{id:'et-cetera',term:'et cetera',meaning:'etcétera / y demás (abreviatura: etc.)',pronunciation:'et-sé-ter-a',example:'Bring a notebook, a pen, a pencil, etc.',translation:'Trae un cuaderno, un bolígrafo, un lápiz, etcétera.',remember:'Et cetera significa “y las demás cosas similares”. Se escribe abreviado como etc., pero al hablar normalmente se dice et cetera.',cloze:'Bring a notebook, a pen, a pencil, ___.',distractors:['also','more','extra']}
+  ,{id:'hows-your-class',term:"How's your class?",meaning:'¿Qué tal tu clase?',pronunciation:'jáuz-yor-klás',example:"How's your class? It's interesting.",translation:'¿Qué tal tu clase? Es interesante.',remember:"How's es la contracción de how is. Se usa aquí porque class está en singular.",cloze:'___ your class?',distractors:['How are','How do','How am']}
+  ,{id:'how-are-your-classes',term:'How are your classes?',meaning:'¿Qué tal tus clases?',pronunciation:'jáu-ar-yor-klá-siz',example:'How are your classes? They are difficult but interesting.',translation:'¿Qué tal tus clases? Son difíciles pero interesantes.',remember:'Con classes en plural usamos are: How are your classes?',cloze:'How ___ your classes?',distractors:['is','do','am']}
 ];
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -57,7 +59,7 @@ function renderQuestion(){
  $('#listenBtn').onclick=()=>speech(card.term);
 }
 function deriveBlank(card){
- if(card.id==='et-cetera')return'etc.';if(card.id==='where-were-we')return'were';if(card.id==='check-this-out')return'out';if(card.id==='wanna-go')return'wanna';if(card.id==='spell-last-name')return'your';if(card.id==='so-far')return'good';if(card.id==='serious')return'serious';if(card.id==='this-pen')return'This';if(card.id==='public-safety')return'safety';if(card.id==='throughout')return'throughout';if(card.id==='taught')return'taught';return card.term;
+ if(card.id==='hows-your-class')return"How's";if(card.id==='how-are-your-classes')return'are';if(card.id==='et-cetera')return'etc.';if(card.id==='where-were-we')return'were';if(card.id==='check-this-out')return'out';if(card.id==='wanna-go')return'wanna';if(card.id==='spell-last-name')return'your';if(card.id==='so-far')return'good';if(card.id==='serious')return'serious';if(card.id==='this-pen')return'This';if(card.id==='public-safety')return'safety';if(card.id==='throughout')return'throughout';if(card.id==='taught')return'taught';return card.term;
 }
 function answer(value,card,mode,button){
  if(session.answered)return;session.answered=true;const correctValue=mode==='meaning'?card.meaning:mode==='complete'?session.blankAnswer:card.term;const ok=value===correctValue;
